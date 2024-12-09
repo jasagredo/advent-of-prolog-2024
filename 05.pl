@@ -5,6 +5,9 @@
 
 :- dynamic(ordered/2).
 
+real("05.txt").
+sample("05.sample").
+
 % parse
 
 order, "\n" --> "\n".
@@ -40,7 +43,8 @@ if_sorted(L, Acc0, Acc) :-
     is_sorted(L), middle(L,Mid), Acc #= Acc0 + Mid;
     Acc #= Acc0.
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(X), F),
     foldl(if_sorted, X, 0, Sol).
 
@@ -53,6 +57,7 @@ sort_then(L, Acc0, Acc) :-
     Acc #= Acc0 + Mid;
     Acc #= Acc0.
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(X), F),
     foldl(sort_then, X, 0, Sol).

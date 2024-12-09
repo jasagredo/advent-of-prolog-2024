@@ -3,6 +3,9 @@
 
 :- dynamic(ok/1).
 
+real("07.txt").
+sample("07.sample").
+
 expr([]) --> "\n".
 expr([X|Xs]) --> " ", number(X), expr(Xs).
 expr([X|Xs]) --> number(X), ":", expr(Xs).
@@ -40,13 +43,15 @@ is_ok_helper(p2, Res, [X|Xs]) :-
 
 head([X|_], X).
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(Xs), F),
     filter(is_ok(p1), Xs, Xss),
     maplist(head, Xss, Xsss),
     sum_list(Xsss, Sol).
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(Xs), F),
     filter(is_ok(p2), Xs, Xss),
     maplist(head, Xss, Xsss),

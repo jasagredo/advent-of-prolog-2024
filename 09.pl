@@ -1,6 +1,9 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+real("09.txt").
+sample("09.sample").
+
 % Produces an expanded list, i.e. 121 --> [0,mt,mt,1]
 space(_, [], 0) --> ("\n" ; "\r\n"; call(eos)).
 space(ID, Res, Ctr) -->
@@ -77,7 +80,8 @@ compact_by_byte(N, [mt|Xs], [Y|Ys], [Y|Compacted]) :-
 compact_by_byte(N, [mt|Xs], [mt|Ys], Compacted) :-
     compact_by_byte(N, [mt|Xs], Ys, Compacted).
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(file(0, FileSystem, Ctr), F),
     reverse(FileSystem, Reversed),
     compact_by_byte(Ctr, FileSystem, Reversed, FinalFS),
@@ -112,7 +116,8 @@ compact_by_region([FileSize-ID|FS], Compacted) :-
         Compacted = [FileSize-ID|Compacted0]
     ).
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(file2(0, FileSystem), F),
     reverse(FileSystem, FileSystemR),
     compact_by_region(FileSystemR, CompactedR),

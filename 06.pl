@@ -1,6 +1,9 @@
 :- use_module(library(between)).
 :- use_module(dcgs/dcgs_utils).
 
+real("06.txt", 129).
+sample("06.sample", 9).
+
 matrix(_, _, A, A) --> call(eos).
 matrix(_, Y, A0, A1) -->
     "\n",
@@ -26,7 +29,7 @@ nextDir(right, down).
 nextDir(down, left).
 nextDir(left, up).
 
-nextInDirection(up, X0-Y0, Map, Positions, Obstacle) :-
+nextInDirection(_, up, X0-Y0, Map, Positions, Obstacle) :-
     findall(Y1, (member(X0-Y1, Map), Y1 #< Y0), Obstacles),
     (
         list_max(Obstacles, ObstacleY),
@@ -40,7 +43,7 @@ nextInDirection(up, X0-Y0, Map, Positions, Obstacle) :-
         Obstacle = none,
         maplist(tuple(X0), Pos, Positions)
     ).
-nextInDirection(down, X0-Y0, Map, Positions, Obstacle) :-
+nextInDirection(Max, down, X0-Y0, Map, Positions, Obstacle) :-
     findall(Y1, (member(X0-Y1, Map), Y1 #> Y0), Obstacles),
     (
         list_min(Obstacles, ObstacleY),
@@ -51,12 +54,12 @@ nextInDirection(down, X0-Y0, Map, Positions, Obstacle) :-
         Obstacle = X0-ObstacleY;
 
         Obstacles = [],
-        numlist(Y0, 129, Pos),
+        numlist(Y0, Max, Pos),
         maplist(tuple(X0), Pos, Positions0),
         reverse(Positions0, Positions),
         Obstacle = none
     ).
-nextInDirection(right, X0-Y0, Map, Positions, Obstacle) :-
+nextInDirection(Max, right, X0-Y0, Map, Positions, Obstacle) :-
     findall(X1, (member(X1-Y0, Map), X1 #> X0), Obstacles),
     (
         list_min(Obstacles, ObstacleX),
@@ -67,12 +70,12 @@ nextInDirection(right, X0-Y0, Map, Positions, Obstacle) :-
         Obstacle = ObstacleX-Y0;
 
         Obstacles = [],
-        numlist(X0, 129, Pos),
+        numlist(X0, _, Pos),
         maplist(fliple(Y0), Pos, Positions0),
         reverse(Positions0, Positions),
         Obstacle = none
     ).
-nextInDirection(left, X0-Y0, Map, Positions, Obstacle) :-
+nextInDirection(_, left, X0-Y0, Map, Positions, Obstacle) :-
     findall(X1, (member(X1-Y0, Map), X1 #< X0), Obstacles),
     (
         list_max(Obstacles, ObstacleX),
@@ -88,8 +91,8 @@ nextInDirection(left, X0-Y0, Map, Positions, Obstacle) :-
     ).
 
 
-move(Dir, Map, (X-Y)-Visited, Sol) :-
-    nextInDirection(Dir, X-Y, Map, Positions, Obstacle),
+move(Max, Dir, Map, (X-Y)-Visited, Sol) :-
+    nextInDirection(Max, Dir, X-Y, Map, Positions, Obstacle),
     foldl(\( (Px-Py)^A0^A1^put_assoc(Px-Py, A0, 0, A1)), Positions, Visited, Visited1),
     (Obstacle = none,
      assoc_to_list(Visited1, Sol);
@@ -97,29 +100,29 @@ move(Dir, Map, (X-Y)-Visited, Sol) :-
      dif(Obstacle, none),
      Positions = [Last|_],
      nextDir(Dir, Dir1),
-     move(Dir1, Map, Last-Visited1, Sol)
+     move(Max, Dir1, Map, Last-Visited1, Sol)
     ).
 
-makesLoop(Map, P) :-
-    makesLoop(up, Map, P).
-makesLoop(Dir, Map, (X-Y)-Obstacles) :-
-    nextInDirection(Dir, X-Y, Map, Positions, Obstacle),
+makesLoop(Max, Map, P) :-
+    makesLoop(Max, up, Map, P).
+makesLoop(Max, Dir, Map, (X-Y)-Obstacles) :-
+    nextInDirection(Max, Dir, X-Y, Map, Positions, Obstacle),
     dif(Obstacle, none),
     Positions = [Last|_],
     ( get_assoc(Obstacle-Dir, Obstacles, bogus), !;
       put_assoc(Obstacle-Dir, Obstacles, bogus, Obstacles1),
       nextDir(Dir, Dir1),
-      makesLoop(Dir1, Map, Last-Obstacles1)
+      makesLoop(Max, Dir1, Map, Last-Obstacles1)
     ).
 
-
-part1and2(F, Sol1, Sol2) :-
+part1and2(Mode, Sol1, Sol2) :-
+    call(Mode, F, Max),
     empty_assoc(A0),
     phrase_from_file(matrix(0, 0, A0-(0-0), A1-Init), F),
     assoc_to_keys(A1, A2),
-    move(up, A2, Init-A0, Pos),
+    move(Max, up, A2, Init-A0, Pos),
     maplist(fst, Pos, Pos1),
     length(Pos, Sol1),
     !,
-    findall(P, (dif(P, Init), member(P, Pos1), makesLoop([P|A2], Init-A0)), NewObstacles),
+    findall(P, (dif(P, Init), member(P, Pos1), makesLoop(Max, [P|A2], Init-A0)), NewObstacles),
     length(NewObstacles, Sol2).

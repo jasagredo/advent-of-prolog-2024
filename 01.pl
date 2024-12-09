@@ -4,6 +4,9 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+real("01.txt").
+sample("01.sample").
+
 input_format([], []) --> call(eos).
 input_format([X|Xs], [Y|Ys]) -->
     number(X),
@@ -15,7 +18,8 @@ input_format([X|Xs], [Y|Ys]) -->
 distance(X, Y, Z) :-
     Z #= abs(X - Y).
 
-part1(F, Solution):-
+part1(Mode, Solution):-
+    call(Mode, F),
     phrase_from_file(input_format(Xs, Ys), F),
     mergesort(Xs, Xss),
     mergesort(Ys, Yss),
@@ -43,7 +47,8 @@ similarity(Assoc, K-V, Z) :-
     Z #= K * V * Reps.
 similarity(_, _, 0).
 
-part2(F, Solution):-
+part2(Mode, Solution):-
+    call(Mode, F),
     phrase_from_file(input_format2(Xs, Ys), F),
     assoc_to_list(Xs, Xss),
     maplist(similarity(Ys), Xss, Similarities),

@@ -1,5 +1,8 @@
 :- use_module(dcgs/dcgs_utils).
 
+real("04.txt").
+sample("04.sample").
+
 matrix(_, _, _, A, A) --> call(eos).
 matrix(C, _, Y, A0, A1) -->
     "\n",
@@ -58,7 +61,8 @@ xmas_all(Mat, X-Y, Acc0, Acc8) :-
     left(up(xmas), Positions, Mat, Acc6, Acc7),
     left(down(xmas), Positions, Mat, Acc7, Acc8).
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     empty_assoc(Mat0),
     phrase_from_file(matrix('X', 0, 0, (Mat0, []), (Mat1, Xs)), F),
     foldl(xmas_all(Mat1), Xs, 0, Sol).
@@ -78,7 +82,8 @@ x_mas(Mat, X-Y, Acc0, Acc1) :-
     Acc1 #= Acc0 + 1;
     Acc1 #= Acc0.
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     empty_assoc(Mat0),
     phrase_from_file(matrix('A', 0, 0, (Mat0, []), (Mat1, As)), F),
     foldl(x_mas(Mat1), As, 0, Sol).

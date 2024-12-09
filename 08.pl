@@ -1,6 +1,9 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+real("08.txt").
+sample("08.sample").
+
 matrix(_, _, A, A) --> call(eos).
 matrix(_, Y, A0, A1) -->
     "\n",
@@ -59,7 +62,8 @@ gen_antinodes(P, Antennas, Antinodes) :-
     maplist(gen_antinodes_helper(P), Pairs, Antinodes0),
     append(Antinodes0, Antinodes).
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     empty_assoc(A),
     phrase_from_file(matrix(0, 0, A, Mat), F),
     assoc_to_values(Mat, AntennasByFreq),
@@ -68,7 +72,8 @@ part1(F, Sol) :-
     list_to_ord_set(Antinodes, UniqueAntinodes),
     length(UniqueAntinodes, Sol).
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     empty_assoc(A),
     phrase_from_file(matrix(0, 0, A, Mat), F),
     assoc_to_values(Mat, AntennasByFreq),

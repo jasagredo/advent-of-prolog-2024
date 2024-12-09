@@ -2,6 +2,9 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+real("02.txt").
+sample("02.sample").
+
 report([X]) --> number(X), eol.
 report([X|Xs]) --> number(X), " ", report(Xs).
 
@@ -17,7 +20,8 @@ safe(G_2, [X,Y|Xs]) :-
 
 safe(Xs) :- safe((#>), Xs); safe((#<), Xs).
 
-part1(F, Sol) :-
+part1(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(Xs), F),
     filter(safe, Xs, Ys),
     length(Ys, Sol).
@@ -25,7 +29,8 @@ part1(F, Sol) :-
 safe_dampener(Xs) :-
     safe(Xs); select(_, Xs, Xss), safe(Xss).
 
-part2(F, Sol) :-
+part2(Mode, Sol) :-
+    call(Mode, F),
     phrase_from_file(input(Xs), F),
     filter(safe_dampener, Xs, Zs),
     length(Zs, Sol).
