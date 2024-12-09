@@ -1,8 +1,18 @@
-:- module(fp, [filter/3, flip/3, zipWith/4, take1/2, sublist/2]).
+:- module(fp, [ filter/3
+                , flip/3
+                , zipWith/4
+                , take1/2
+                , sublist/2
+                , tuple/3
+                , fliple/3
+                , fst/2
+                , snd/2
+              ]).
 
 :- meta_predicate filter(1, ?, ?).
 :- meta_predicate flip(2, ?, ?).
 :- meta_predicate zipWith(3, ?, ?, ?).
+:- meta_predicate takeWhile(1, ?, ?).
 
 flip(G_2, Y, Z) :-
     call(G_2, Z, Y).
@@ -28,3 +38,9 @@ filter(G_1, [X|Xs], ZZs) :-
     -> ZZs = [X|Zs]
     ; ZZs = Zs
     ).
+
+tuple(X, Y, X-Y).
+fliple(Y, X, X-Y).
+
+fst(X-_, X).
+snd(_-X, X).
