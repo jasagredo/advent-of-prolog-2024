@@ -48,7 +48,7 @@ part1(F, Sol) :-
 
 sort_then(L, Acc0, Acc) :-
     \+ is_sorted(L),
-    mergesort_by(order, L, L1),
+    mergesort_by(ordered, L, L1),
     middle(L1, Mid),
     Acc #= Acc0 + Mid;
     Acc #= Acc0.
