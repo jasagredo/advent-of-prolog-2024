@@ -1,5 +1,16 @@
 :- use_module(dcgs/dcgs_utils).
 
+/*
+Part 1 (slow!):
+  1. Parse an assoc (X-Y)-Char and store the locations of the 'X's.
+  2. For each 'X', try to find "MAS" on each of the 8 directions.
+
+Part 2:
+  1. Parse an assoc (X-Y)-Char and store the locations of the 'A's.
+  2. For each 'A', get the corner positions and check if for each they are a
+     permutation of "MS".
+*/
+
 real("04.txt").
 sample("04.sample").
 
@@ -18,9 +29,10 @@ xmas([PM, PA, PS], Mat, Acc0, Acc1) :-
     get_assoc(PM, Mat, M),
     get_assoc(PA, Mat, A),
     get_assoc(PS, Mat, S),
-    if_(=([M,A,S], "MAS"),
-        Acc1 #= Acc0 + 1,
-        Acc1 #= Acc0);
+    ( [M,A,S] = "MAS",
+      Acc1 #= Acc0 + 1;
+      Acc1 #= Acc0
+    );
     Acc1 #= Acc0.
 
 right(G_4, [X1-Y1, X2-Y2, X3-Y3], Mat, Acc0, Acc1) :-
@@ -76,9 +88,8 @@ x_mas(Mat, X-Y, Acc0, Acc1) :-
     get_assoc(Xr-Yd, Mat, RD),
     get_assoc(Xl-Yu, Mat, LU),
     get_assoc(Xl-Yd, Mat, LD),
-    permutation([RU, LD], Mas1),
-    permutation([RD, LU], Mas2),
-    maplist(=("MS"), [Mas1, Mas2]),
+    permutation([RU, LD], "MS"),
+    permutation([RD, LU], "MS"),
     Acc1 #= Acc0 + 1;
     Acc1 #= Acc0.
 
@@ -87,3 +98,16 @@ part2(Mode, Sol) :-
     empty_assoc(Mat0),
     phrase_from_file(matrix('A', 0, 0, (Mat0, []), (Mat1, As)), F),
     foldl(x_mas(Mat1), As, 0, Sol).
+
+run :-
+    time(
+        (
+            part1(real, X),
+            format("Task 1: ~w~n", [X]),
+            part2(real, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

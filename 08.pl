@@ -1,6 +1,22 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+/*
+They both use the same code, only change is the result of 'gen_antinodes_helper'.
+
+Part 1:
+  For each pair of antennas we generate the sequence of antinodes in both
+  directions. We take only the first element in each direction.
+
+  We then put all in an ord_set to remove duplicates.
+
+Part 2:
+  For each pair of antennas we generate the sequence of antinodes in both
+  directions.
+
+  We then put all in an ord_set to remove duplicates.
+*/
+
 real("08.txt").
 sample("08.sample").
 
@@ -62,22 +78,24 @@ gen_antinodes(P, Antennas, Antinodes) :-
     maplist(gen_antinodes_helper(P), Pairs, Antinodes0),
     append(Antinodes0, Antinodes).
 
-part1(Mode, Sol) :-
-    call(Mode, F),
-    empty_assoc(A),
-    phrase_from_file(matrix(0, 0, A, Mat), F),
+solve(P, Mat, Sol) :-
     assoc_to_values(Mat, AntennasByFreq),
-    maplist(gen_antinodes(p1), AntennasByFreq, AntinodesByFreq),
+    maplist(gen_antinodes(P), AntennasByFreq, AntinodesByFreq),
     append(AntinodesByFreq, Antinodes),
     list_to_ord_set(Antinodes, UniqueAntinodes),
     length(UniqueAntinodes, Sol).
 
-part2(Mode, Sol) :-
-    call(Mode, F),
-    empty_assoc(A),
-    phrase_from_file(matrix(0, 0, A, Mat), F),
-    assoc_to_values(Mat, AntennasByFreq),
-    maplist(gen_antinodes(p2), AntennasByFreq, AntinodesByFreq),
-    append(AntinodesByFreq, Antinodes),
-    list_to_ord_set(Antinodes, UniqueAntinodes),
-    length(UniqueAntinodes, Sol).
+run :-
+    time(
+        (
+            empty_assoc(A),
+            phrase_from_file(matrix(0, 0, A, Mat), "08.txt"),
+            solve(p1, Mat, X),
+            format("Task 1: ~w~n", [X]),
+            solve(p2, Mat, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

@@ -3,6 +3,19 @@
 
 :- dynamic(ok/1).
 
+/*
+Part 1:
+  Instead of building up the number with all combinations, we destructure it
+  using the right-most number:
+   - we subtract if the result is #> 0, otherwise it would be impossible to
+     construct with integer addition.
+   - we divide if the mod is 0, otherwise it would be impossible to construct
+     with integer multiplication.
+
+Part 2:
+  We also try to unconcat the string representation if the length would remain #> 0.
+*/
+
 real("07.txt").
 sample("07.sample").
 
@@ -43,16 +56,26 @@ is_ok_helper(p2, Res, [X|Xs]) :-
 
 head([X|_], X).
 
-part1(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(Xs), F),
+part1(Xs, Sol) :-
     filter(is_ok(p1), Xs, Xss),
     maplist(head, Xss, Xsss),
     sum_list(Xsss, Sol).
 
-part2(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(Xs), F),
+part2(Xs, Sol) :-
     filter(is_ok(p2), Xs, Xss),
     maplist(head, Xss, Xsss),
     sum_list(Xsss, Sol).
+
+run :-
+    time(
+        (
+            phrase_from_file(input(Xs), "07.txt"),
+            part1(Xs, X),
+            format("Task 1: ~w~n", [X]),
+            part2(Xs, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

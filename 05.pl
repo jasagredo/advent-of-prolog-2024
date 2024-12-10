@@ -5,6 +5,17 @@
 
 :- dynamic(ordered/2).
 
+/*
+Part 1:
+  1. Parse the order and assert each relation in 'ordered/2'.
+  2. Find which ones are wrongly sorted, i.e. for all pairs (sub-lists) [X,Y]
+     where there are no ordered(Y, X).
+
+Part 2:
+  1. Ditto
+  2. For the unsorted ones, mergesort them.
+*/
+
 real("05.txt").
 sample("05.sample").
 
@@ -43,9 +54,7 @@ if_sorted(L, Acc0, Acc) :-
     is_sorted(L), middle(L,Mid), Acc #= Acc0 + Mid;
     Acc #= Acc0.
 
-part1(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(X), F),
+part1(X, Sol) :-
     foldl(if_sorted, X, 0, Sol).
 
 % part 2
@@ -57,7 +66,19 @@ sort_then(L, Acc0, Acc) :-
     Acc #= Acc0 + Mid;
     Acc #= Acc0.
 
-part2(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(X), F),
+part2(X, Sol) :-
     foldl(sort_then, X, 0, Sol).
+
+run :-
+    time(
+        (
+            phrase_from_file(input(Xs), "05.txt"),
+            part1(Xs, X),
+            format("Task 1: ~w~n", [X]),
+            part2(Xs, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

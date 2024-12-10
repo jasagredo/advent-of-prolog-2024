@@ -1,5 +1,22 @@
-:- use_module(library(between)).
 :- use_module(dcgs/dcgs_utils).
+:- use_module(fp).
+
+/*
+Both parts at once, because we use the path from part 1 on part 2.
+
+Part 1:
+  1. Parse a list of obstacle positions, and find the starting point.
+  2. Starting up, 'move/5' until an obstacle, then turn.
+  3. Repeat until no obstacle was hit.
+
+Part 2 (brute-force):
+  For each position in the path of part 1, put an obstacle and try to find a
+  loop.
+
+  We record in which direction we hit each obstacle. If the direction repeats
+  then there is a loop. If the path terminates without the mentioned hit, there
+  is no loop.
+*/
 
 real("06.txt", 129).
 sample("06.sample", 9).
@@ -12,7 +29,7 @@ matrix(_, Y, A0, A1) -->
 matrix(X, Y, A0-Init0, Res) -->
     [Char],
     { Char = (#),
-      put_assoc(X-Y, A0, Char, A1);
+      A1 = [X-Y|A0];
       dif(Char, (#)),
       A1 = A0
     },
@@ -70,7 +87,7 @@ nextInDirection(Max, right, X0-Y0, Map, Positions, Obstacle) :-
         Obstacle = ObstacleX-Y0;
 
         Obstacles = [],
-        numlist(X0, _, Pos),
+        numlist(X0, Max, Pos),
         maplist(fliple(Y0), Pos, Positions0),
         reverse(Positions0, Positions),
         Obstacle = none
@@ -118,11 +135,22 @@ makesLoop(Max, Dir, Map, (X-Y)-Obstacles) :-
 part1and2(Mode, Sol1, Sol2) :-
     call(Mode, F, Max),
     empty_assoc(A0),
-    phrase_from_file(matrix(0, 0, A0-(0-0), A1-Init), F),
-    assoc_to_keys(A1, A2),
-    move(Max, up, A2, Init-A0, Pos),
+    phrase_from_file(matrix(0, 0, []-(0-0), A1-Init), F),
+    move(Max, up, A1, Init-A0, Pos),
     maplist(fst, Pos, Pos1),
     length(Pos, Sol1),
     !,
-    findall(P, (dif(P, Init), member(P, Pos1), makesLoop(Max, [P|A2], Init-A0)), NewObstacles),
+    findall(P, (dif(P, Init), member(P, Pos1), makesLoop(Max, [P|A1], Init-A0)), NewObstacles),
     length(NewObstacles, Sol2).
+
+run :-
+    time(
+        (
+            part1and2(real, X, Y),
+            format("Task 1: ~w~n", [X]),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

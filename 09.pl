@@ -1,11 +1,29 @@
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
+/*
+Part 1:
+  We produce an expanded list, then move file bytes from the end filling the
+  spaces, until we have 'Ctr' file bytes since the start.
+
+  Then compute the checksum.
+
+Part 2 (horrible brute-force):
+  We produce a compressed list, then process it backwards trying to find a place
+  to put the file. When putting the file we also put the remaining free space.
+
+  If we can't put the file, we re-append it to the result from the recursive
+  call.
+
+  Finally we expand the file-system (see 'expand/2') and we compute the
+  checksum.
+*/
+
 real("09.txt").
 sample("09.sample").
 
 % Produces an expanded list, i.e. 121 --> [0,mt,mt,1]
-space(_, [], 0) --> ("\n" ; "\r\n"; call(eos)).
+space(_, [], 0) --> eol.
 space(ID, Res, Ctr) -->
     [Char],
     { number_chars(SpaceSize, [Char]),
@@ -15,7 +33,7 @@ space(ID, Res, Ctr) -->
     file(ID, Res0, Ctr),
     { append(L, Res0, Res) }.
 
-file(_, [], 0) --> ("\n" ; "\r\n"; call(eos)).
+file(_, [], 0) --> eol.
 file(ID, Res, Ctr) -->
     [Char],
     { number_chars(FileSize, [Char]),
@@ -29,7 +47,7 @@ file(ID, Res, Ctr) -->
     }.
 
 % Produces a compressed list, i.e. 121 --> [1-0, 2-mt, 1-1]
-space2(_, []) --> ("\n" ; "\r\n"; call(eos)).
+space2(_, []) --> eol.
 space2(ID, [SpaceSize-mt|Res]) -->
     [Char],
     { number_chars(SpaceSize, [Char]), SpaceSize #\= 0 },
@@ -39,7 +57,7 @@ space2(ID, Res) -->
     { number_chars(SpaceSize, [Char]), SpaceSize #= 0 },
     file2(ID, Res).
 
-file2(_, []) --> ("\n" ; "\r\n"; call(eos)).
+file2(_, []) --> eol.
 file2(ID, [FileSize-ID|Res]) -->
     [Char],
     { number_chars(FileSize, [Char]) },
@@ -124,3 +142,16 @@ part2(Mode, Sol) :-
     reverse(CompactedR, Compacted),
     expand(Compacted, Expanded),
     checksum(Expanded, Sol).
+
+run :-
+    time(
+        (
+            part1(real, X),
+            format("Task 1: ~w~n", [X]),
+            part2(real, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).

@@ -1,9 +1,14 @@
-:- use_module(library(dcgs)).
 :- use_module(dcgs/dcgs_utils).
 :- use_module(fp).
 
-real("02.txt").
-sample("02.sample").
+/*
+Part 1:
+  Filter the list by the sequence being safe and count the remaining elements.
+
+Part 2:
+  Filter the list by the sequence being safe or the sequence with one element
+  less being safe, then count the remaining elements.
+*/
 
 report([X]) --> number(X), eol.
 report([X|Xs]) --> number(X), " ", report(Xs).
@@ -20,17 +25,27 @@ safe(G_2, [X,Y|Xs]) :-
 
 safe(Xs) :- safe((#>), Xs); safe((#<), Xs).
 
-part1(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(Xs), F),
+part1(Xs, Sol) :-
     filter(safe, Xs, Ys),
     length(Ys, Sol).
 
 safe_dampener(Xs) :-
     safe(Xs); select(_, Xs, Xss), safe(Xss).
 
-part2(Mode, Sol) :-
-    call(Mode, F),
-    phrase_from_file(input(Xs), F),
+part2(Xs, Sol) :-
     filter(safe_dampener, Xs, Zs),
     length(Zs, Sol).
+
+run :-
+    time(
+        (
+            phrase_from_file(input(Xs), "02.txt"),
+            part1(Xs, X),
+            format("Task 1: ~w~n", [X]),
+            part2(Xs, Y),
+            format("Task 2: ~w~n", [Y])
+        )
+    ),
+    halt.
+
+:- initialization(run).
