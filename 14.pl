@@ -59,7 +59,6 @@ steps(Sizes, N, Robots, Sol) :-
     step(Sizes, Robots, Robots1),
     foldl(quadrant(50-51), Robots1, 0-0-0-0, A1-B1-C1-D1),
     (
-        N #> 7490,
         mergesort_by(\A^B^(A #> B), [A1,B1,C1,D1], [X, Y|_]),
         X #> Y + 100,
         Sol #= N,
@@ -84,7 +83,14 @@ print_map(Sx-Sy, X-Y, Robots) :-
     X1 #= X + 1,
     print_map(Sx-Sy, X1-Y, Robots).
 
-
 part2(F, Sol) :-
     phrase_from_file((call(pad), input(Robots)), F),
     findall(_, steps(101-103, 0, Robots, Sol), _).
+
+part2_re(_, Sol) :-
+    % By manual inspection for patterns that have more than 20 robots on a row,
+    % we see the first vertical pattern is at 18 steps and the first horizontal
+    % pattern is as 76 seconds.
+    %
+    % Then this becomes trivial:
+    Sol mod 103 #= 76, Sol mod 101 #= 18, Sol #> 0, Sol #< 8000, label([Sol]).
