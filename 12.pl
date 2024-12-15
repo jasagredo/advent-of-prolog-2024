@@ -129,6 +129,9 @@ inwards_corner(Vertices, (X1-Y1)-(X2-Y2)-(X3-Y3), Score0, Score) :-
     ;
     Score #= Score0.
 
+% We could count how many sides there are, but corners are dual to sides (each
+% side connects two corners, but each corner connects two sides), so we might as
+% well just count corners, for which we can tell just by inspecting each point.
 corner(Vertices, X-Y, Sol0, Sol) :-
     Xm #= X - 1,
     Xp #= X + 1,
